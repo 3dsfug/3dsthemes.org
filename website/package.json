@@ -14,14 +14,14 @@
     "compression": "^1.7.0",
     "cookie-parser": "^1.4.3",
     "crypto-js": "^3.1.9-1",
-    "expressjs": "^1.0.1",
+    "express": "^4.15.3",
     "fs": "0.0.1-security",
     "helmet": "^3.6.1",
     "hpp": "^0.2.2",
     "http": "0.0.0",
-    "https": "^1.0.0",
     "morgan": "^1.8.2",
     "serve-favicon": "^2.4.3",
+    "socket.io": "^2.0.3",
     "validator": "^8.0.0"
   }
 }
