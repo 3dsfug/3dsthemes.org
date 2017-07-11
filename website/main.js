@@ -64,5 +64,5 @@ app.use(helmet.noSniff())
 app.use(helmet.xssFilter())
 
 app.get('/', function(req, res){
-  res.send('Hello World!')
+  res.sendFile(__dirname + '/web/index.html')
 })
