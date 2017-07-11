@@ -2,8 +2,13 @@
 TODO's go here
 
 TODO: Build inital API
-TODO: Security headers
 TODO: Archive serving
+TODO: Security EVERYWHERE
+TODO: Socket.IO security also (damn thats alot of security)
+TODO: Figure out how the heck cookies work
+TODO: Better logging system because console.log is bad
+TODO: do we even need chalk?
+TODO: 4 oh 4 pages
 */
 
 //DEPS
