@@ -1,0 +1,62 @@
+extends layout
+block title
+  | Account - 3DSThemes.org
+block container
+  h2.display-5=userData.username
+  hr
+  .col-lg-3
+    ul.nav.nav-pills.nav-stacked.account-pills
+      li.active
+        a(href='#stats', data-toggle='tab', aria-expanded='true') Stats
+      li
+        a(href='#themes', data-toggle='tab', aria-expanded='false') Themes
+      li
+        a(href='#badges', data-toggle='tab', aria-expanded='false') Badges
+      li
+        a(href='#splashes', data-toggle='tab', aria-expanded='false') Splashes
+      li
+        a(href='#settings', data-toggle='tab', aria-expanded='false') Settings
+  .col-lg-9
+    .tab-content.well
+      #stats.tab-pane.fade.active.in
+        h4 Account
+        p Themes submitted: 0
+        p Splashes submitted: 0
+        p Badges submitted: 0
+        p You've been a member since Thu Aug 03 2017 11:40:29 GMT-0400 (EDT)
+      #themes.tab-pane.fade
+        h4 Themes
+        p No submissions to display.
+      #badges.tab-pane.fade
+        h4 Badges
+        p No submissions to display.
+      #splashes.tab-pane.fade
+        h4 Splashes
+        p No submissions to display.
+      #settings.tab-pane.fade
+        h4 Security Settings
+        .form-group
+          label.form-label(for='password') Current Password
+          input#current-password.form-control(type='password', name='password', placeholder='Type current password')
+        .form-group
+          label.form-label(for='newPassword') New Password
+          input#new-password.form-control(type='password', name='newPassword', placeholder='Type new password')
+          small.form-text.text-muted Passwords must be 8 characters or longer and include both letters and numbers.
+        .form-group
+          label.form-label(for='newPassword2') Confirm Password
+          input#confirm-password.form-control(type='password', name='newPassword2', placeholder='Confirm password')
+        input.btn.btn-red(type='submit', name='securitySubmit', value='Update')
+        hr
+        h4 Site Settings
+        .form-group
+          label(for='nsfwLevel') Default NSFW Level
+          select.form-control(name='nsfwLevel')
+            option(value='0') Safe
+            option(value='1') Sketchy
+            option(value='2') NSFW
+        .form-group
+          label(for='site-theme') Site Theme
+          select.form-control(name='siteTheme')
+            option(value='') Dark
+            option(value='light') Light
+        input.btn.btn-red(type='submit', name='siteSubmit', value='Update')

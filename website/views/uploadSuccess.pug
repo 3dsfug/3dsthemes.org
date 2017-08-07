@@ -1,0 +1,10 @@
+extends layout
+block title
+  | Upload Success - 3DSThemes.org
+block container
+  .alert.alert-success
+    h4 Success
+    p
+      | Your #{themeType} has been successfully uploaded
+      span=(variationCount ? ' with ' + variationCount + ' ' + (variationCount > 1 ? 'variations' : 'variation') : '')
+      | .

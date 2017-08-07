@@ -1,0 +1,89 @@
+extends layout
+block title
+  | Upload - 3DSThemes.org
+block container
+  h2.display-5 Upload
+  hr
+  .col-lg-3
+    ul.nav.nav-pills.nav-stacked.account-pills
+      li.active
+        a(href='#themes', data-toggle='tab', aria-expanded='false') Theme
+      li
+        a(href='#badges', data-toggle='tab', aria-expanded='false') Badges
+      li
+        a(href='#splashes', data-toggle='tab', aria-expanded='false') Splash
+  .col-lg-9
+    .well
+      form(action='/upload/', method='post', enctype='multipart/form-data')
+        h4 Information
+        .form-group
+          label.form-label(for='name')
+            | Name
+            span.text-danger *
+          input#name.form-control(type='text', name='name', placeholder='Name', maxlength='32')
+          span.help-text 32 characters maximum.
+        .form-group
+          label.form-label(for='shortDescription')
+            | Short Description
+            span.text-danger *
+          input#shortDescription.form-control(type='text', name='shortDescription', placeholder='Short description', maxlength='64')
+          span.help-text 64 characters maximum.
+        .form-group
+          label.form-label(for='description')
+            | Description
+          textarea#description.form-control(name='description', placeholder='Full description', rows='4')
+        .form-group
+          label.form-label(for='tags')
+            | Tags
+          input#tags.form-control(type='text', name='tags', placeholder='Tags, separate with a comma')
+          span.help-text Separate tags with a comma
+        .form-group
+          label.form-label(for='nsfwLevel')
+            | NSFW level
+            span.text-danger *
+          select#nsfwLevel.form-control(name='nsfwLevel')
+            option(value='0') Safe
+            option(value='1') Sketchy
+            option(value='2') NSFW
+        hr
+        .tab-content
+          #themes.tab-pane.fade.active.in
+            h4 Theme Files
+            .form-group
+              label(for='bodyLZ')
+                kbd body_LZ.bin
+                span.text-danger *
+              input#bodyLZ.form-control(type='file', name='bodyLZ')
+            .form-group
+              label(for='bgm')
+                kbd bgm.bcstm
+              input#bgm.form-control(type='file', name='bgm')
+            .form-group
+              label(for='preview')
+                | Preview
+                kbd .png
+                span.text-danger *
+              input#preview.form-control(type='file', name='preview')
+            .form-group
+              label(for='icon')
+                | Icon
+                kbd .png
+                span.text-danger *
+              input#icon.form-control(type='file', name='icon')
+            input.btn.btn-red(type='submit', name='themeSubmit', value='Upload Theme')
+          #splashes.tab-pane.fade
+            h4 Splash Files
+            p You can either upload the bin files or properly sized PNG images.
+            p The top screen must be 400x240 and the bottom must be 320x240.
+            .form-group
+              label(for='splash1Top')
+                | Top Screen
+              input#splashTop.form-control(type='file', name='splash1Top')
+            .form-group
+              label(for='splash1Bottom')
+                | Bottom Screen
+              input#splashBottom.form-control(type='file', name='splash1Bottom')
+            input.btn.btn-red(type='submit', name='splashSubmit', value='Upload Splash')
+          #badges.tab-pane.fade
+            h4 Badge Files
+            input.btn.btn-red(type='submit', name='badgeSubmit', value='Upload Badges')

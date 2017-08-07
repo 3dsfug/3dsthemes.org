@@ -1,0 +1,91 @@
+mixin navItems(items)
+  for item in items
+    - var sub = (typeof(item[2]) !== 'undefined')
+    li.menu-item(class=(req && req.path && req.path.indexOf(item[0]) == 0 ? 'active' : null), class=(sub ? 'dropdown' : null))
+      a(href=item[0])=item[1]
+      if sub
+        ul.dropdown-menu
+          + navItems(item[2])
+
+doctype html
+block vars
+html
+  head
+    meta(charset='utf-8')
+    if(title)
+      title=title + ' - 3DSThemes.org'
+    else
+      title
+        block title
+          | 3DSThemes.org
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge')
+    link(rel='stylesheet', href='/css/custom.scss')
+    // HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries
+    |<!-- if lt IE 9
+    script(src='/js/html5shiv.js')
+    script(src='/js/respond.min.js')
+    |  -->
+    link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css')
+    link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css')
+    link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/magnific-popup.min.css')
+    script(src='https://code.jquery.com/jquery-3.2.1.min.js')
+    script(src='https://www.google.com/recaptcha/api.js')
+    script(src='js/socket.io/socket.io.js')
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.min.js')
+    script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
+    script(src='https://cdn.rawgit.com/khalidsalomao/simple-query-string/22cc5bbe/src/simplequerystring.min.js')
+  body(class=bodyClass)
+    #app
+      nav.navbar.navbar-default
+        .container-fluid
+          .navbar-header
+            button.navbar-toggle.collapsed(type='button', data-toggle='collapse', data-target='#navbar', aria-expanded='false', aria-controls='navbar')
+              span.sr-only Toggle navigation
+              span.icon-bar
+              span.icon-bar
+              span.icon-bar
+            a.navbar-brand(href='/')
+              span._3dsthemes-logo-wide(aria-label='Three D S Themes dot org')
+              area(shape='default', coords='', href='#', alt='')
+          #navbar.navbar-collapse.collapse
+            ul.nav.navbar-nav
+              +navItems([
+                ['/themes/', 'Themes'],
+                ['/badges/', 'Badges'],
+                ['/splashes/', 'Splashes']
+              ])
+            ul.nav.navbar-nav.navbar-right
+              +navItems([
+                ['javascript:$("html").toggleClass("light")', 'Toggle Color']
+              ])
+              if(session && session.loggedIn)
+                +navItems([
+                  ['/upload/', 'Upload',],
+                  ['/account/', session.username,
+                    [
+                      ['/account/themes/', 'My Themes'],
+                      ['/account/badges/', 'My Badges'],
+                      ['/account/splashes/', 'My Splashes'],
+                      ['/account/logout/', 'Logout']
+                    ]
+                  ]
+                ])
+              else
+                +navItems([
+                  ['/account/register/', 'Register'],
+                  ['/account/login/', 'Login']
+                ])
+    .container
+      if(error)
+        .alert.alert-danger=error
+      block container
+        .well
+          block well
+      hr.clear
+      .footer
+        a(href='/contact/') Contact
+        |  · 
+        a(href='/terms/') Terms of Service
+        p © #{(new Date()).getFullYear()} 3DSThemes.org
+        span.text-muted We are in no way affiliated with Nintendo or any associated parties.

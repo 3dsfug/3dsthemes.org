@@ -1,0 +1,29 @@
+extends layout
+block title
+  | Login - 3DSThemes.org
+block vars
+  - var bodyClass = 'login'
+block container
+  .well.accountForm
+    h4 Login
+    form.form-horizontal(action='/account/login/', method='post')
+      if(req.query && req.query.redirect)
+        input(type='hidden', name='redirect', value=req.query.redirect)
+      fieldset
+        .form-group
+          label.col-lg-2.control-label(for='inputUsername') Username
+          .col-lg-10
+            input#inputUsername.form-control(name='username', type='text', placeholder='Username')
+        .form-group
+          label.col-lg-2.control-label(for='inputPassword') Password
+          .col-lg-10
+            input#inputPassword.form-control(name='password', type='password', placeholder='Password')
+        .form-group
+          span.col-lg-2
+          .col-lg-10
+            div.g-recaptcha(data-sitekey='6LcFWysUAAAAAKKYtOVaN9mwQbn4g3ykO7LJXPZO')
+        .form-group
+          div
+            button.btn.btn-default(type='reset') Cancel
+            | 
+            button.btn.btn-primary(type='submit') Submit

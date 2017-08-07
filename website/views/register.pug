@@ -1,0 +1,40 @@
+extends layout
+block title
+  | Register - 3DSThemes.org
+block vars
+  - var bodyClass = 'register'
+block container
+  .well.accountForm
+    h4 Register
+    form.form-horizontal(action='/account/register/', method='post')
+      fieldset
+        .form-group
+          label.col-lg-2.control-label(for='inputUsername') Username
+          .col-lg-10
+            input#inputUsername.form-control(name='username', type='text', placeholder='Username', value=(req.body.username))
+            span.hidden.username-taken This username is already taken
+            span.hidden.invalid-characters Invalid characters found, please enter only letters and numbers
+        .form-group
+          label.col-lg-2.control-label(for='inputEmail') Email
+          .col-lg-10
+            input#inputEmail.form-control(name='email', type='email', placeholder='Email', value=(req.body.email))
+            span.hidden.invalid-email Invalid email address
+            span.hidden.email-in-use This email address is already in use
+        .form-group
+          label.col-lg-2.control-label(for='inputPassword') Password
+          .col-lg-10
+            input#inputPassword.form-control(name='password', type='password', placeholder='Password')
+        .form-group
+          label.col-lg-2.control-label(for='inputPassword2')
+          .col-lg-10
+            input#inputPassword2.form-control(name='password2', type='password', placeholder='Verify Password')
+            span.hidden.passwords-no-match The passwords don't match
+        .form-group
+          span.col-lg-2
+          .col-lg-10
+            div.g-recaptcha(data-sitekey='6LcFWysUAAAAAKKYtOVaN9mwQbn4g3ykO7LJXPZO')
+        .form-group
+          div
+            button.btn.btn-default(type='reset') Cancel
+            | 
+            button.btn.btn-primary(type='submit') Submit
