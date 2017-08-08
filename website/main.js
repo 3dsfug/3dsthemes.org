@@ -603,7 +603,7 @@ app.get('/txt/qrcode.txt', function (req, res) {
 
 app.get('/images/identicons/:data', function (req, res) {
   res.setHeader('Content-Type', 'image/png')
-  res.end(jdenticon.toPng(req.params.data, 128))
+  res.end(jdenticon.toPng(req.params.data, 128, 0))
 })
 
 app.use('/Errors/403', send403)
