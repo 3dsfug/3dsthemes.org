@@ -2,7 +2,10 @@ extends layout
 block title
   | Account - 3DSThemes.org
 block container
-  h2.display-5=userData.username
+  .gravatarHeading
+    a(href='https://gravatar.com/')
+      img(src='https://www.gravatar.com/avatar/' + md5(userData.email.toLowerCase()) + '?d=' + escape('http://3dsthemes.org/images/identicons/' + userData.username))
+    h2.display-5=userData.username
   hr
   .col-lg-3
     ul.nav.nav-pills.nav-stacked.account-pills

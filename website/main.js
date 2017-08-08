@@ -16,6 +16,7 @@ const PNG = require('pngjs').PNG
 const splashTools = require('3ds-splash')
 const promisify = require('promisify-node')
 const fs = promisify('fs')
+const crypto = require('crypto')
 const taiPasswordStrength = require('tai-password-strength')
 const multiparty = require('multiparty')
 const path = require('path')
@@ -39,6 +40,7 @@ const minify = require('express-minify')
 const tmp = require('tmp')
 const minifyCache = tmp.dirSync().name
 const archiver = require('archiver')
+const jdenticon = require('jdenticon')
 console.log(`Minify Cache: ${minifyCache}`)
 
 // CONFIG
@@ -155,6 +157,9 @@ app.all('*', function (req, res, next) {
 
   res.locals.req = req
   res.locals.session = req.session
+  res.locals.md5 = function (data) {
+    return crypto.createHash('md5').update(data).digest("hex").toLowerCase()
+  }
 
   next()
 })
@@ -338,38 +343,35 @@ app.post('/upload/', function (req, res) {
       res.render('errors/500')
       return
     }
-    
+
     var errors = []
-    
+
     if(!(
       fields.name && fields.name[0].length > 1 && fields.name[0].legnth < 33 &&
       fields.shortDescription && fields.shortDescription[0].length > 0 &&
       fields.shortDescription[0].length < 65 && fields.nsfwLevel &&
       [0, 1, 2].indexOf(parseInt(fields.nsfwLevel)) !== -1
     )) {
-      
+
     }
     if (!fields.name || fields.name[0].length < 1 || fields.name[0].length > 32) {
       errors.push('Invalid name')
     }
     if (!fields.shortDescription || fields.shortDescription[0].length < 1 || fields.shortDescription[0].length > 64) {
-      errors.push('Invalid short description')
-    }
-    if (!fields.shortDescription) {
-      errors.push('Invalid short description')
+      errors.push('Invalid description')
     }
     if (!fields.nsfwLevel || [0, 1, 2].indexOf(parseInt(fields.nsfwLevel)) === -1) {
       errors.push('Invalid NSFW level')
     }
-    
+
     var sanitizedTags = ''
-    
+
     if (fields.tags && fields.tags[0].length > 0) {
       sanitizedTags = fields.tags[0].replace(/(\s*,\s*)+/g, ',').replace(/^,*(.*?),*$/, '$1')
     }
 
     if (fields.themeSubmit) {
-      
+
     } else if (fields.badgeSubmit) {
 
     } else if (fields.splashSubmit) {
@@ -389,10 +391,9 @@ app.post('/upload/', function (req, res) {
           }
         }
         if (splashes.length > 0) {
-          var dbResult = await db.query('INSERT INTO `3dsthemes`.`themes` (`Name`, `ShortDescription`, `Description`, `Author`, `Type`, `System`, `Submitted`, `NsfwLevel`, `Tags`, Published) VALUES (?,?,?,?,?,?,NOW(),?,?,?)', [
+          var dbResult = await db.query('INSERT INTO `3dsthemes`.`themes` (`Name`, `Description`, `Author`, `Type`, `System`, `Submitted`, `NsfwLevel`, `Tags`, Published) VALUES (?,?,?,?,?,NOW(),?,?,?)', [
             fields.name[0],
             fields.shortDescription[0],
-            fields.description[0],
             req.session.userID,
             2,
             0,
@@ -435,6 +436,23 @@ app.get('/account/login', function (req, res) {
   }
 })
 
+app.get('/account/resend-activation', function (req, res) {
+  if (req.session && req.session.username) {
+    accountFunctions.getUser(req.session.username)
+    .then(accountFunctions.sendVerifiationMail)
+    .then(function (regData) {
+      res.render('registerSuccess', {
+        regData: regData
+      })
+    }).catch(function (err) {
+      console.error(err)
+      res.render('errors/500')
+    })
+  } else {
+    res.render('errors/403')
+  }
+})
+
 app.post('/account/login', function (req, res) {
   if (req.session && req.session.loggedIn === true) {
     res.redirect('/')
@@ -451,6 +469,7 @@ app.post('/account/login', function (req, res) {
       req.session.loggedIn = true
       req.session.username = data['username']
       req.session.userID = data['id']
+      req.session.verificationCode = data['verificationCode']
       req.session.permissions = accountFunctions.getUserFlags(data['flags'])
       if (acceptsJSON(req)) {
         res.json({
@@ -523,7 +542,12 @@ app.get('/account/activate/:username/:code', function (req, res) {
   accountFunctions.activate({
     username: req.params.username,
     code: req.params.code
-  }).then(function (activate) {
+  }).then(function (data) {
+    if (req.session.username === data['username']) {
+      req.verificationCode = data['verificationCode']
+      req.session.permissions = accountFunctions.getUserFlags(data['flags'])
+    }
+
     if (acceptsJSON(req)) {
       res.json({success: true})
     } else {
@@ -575,6 +599,11 @@ app.get('/txt/qrcode.txt', function (req, res) {
   res.setHeader('Content-Type', 'text/plain')
 
   res.send(qrcode.getData().map(function (e) { return e.join('') }).join(' '))
+})
+
+app.get('/images/identicons/:data', function (req, res) {
+  res.setHeader('Content-Type', 'image/png')
+  res.end(jdenticon.toPng(req.params.data, 128))
 })
 
 app.use('/Errors/403', send403)

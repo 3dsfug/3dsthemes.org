@@ -8,7 +8,14 @@ const bitFlags = require('./bitFlags.js')
 const reCAPTCHA = require('recaptcha2')
 const path = require('path')
 const conf = require(path.join(__dirname, 'config.json'))
-var recaptcha = new reCAPTCHA(conf.recaptcha2)
+const mailgun = require('mailgun-js')({apiKey: conf.mail.apikey, domain: conf.mail.domain});
+const recaptcha = new reCAPTCHA(conf.recaptcha2)
+const pug = require('pug')
+
+// Email templates
+const emailTemplates = {
+  verify: pug.compileFile(path.join(__dirname, 'views','email','verify.pug'), {})
+}
 
 passStrength.addCommonPasswords(taiPasswordStrength.commonPasswords)
 
@@ -53,6 +60,8 @@ exports.checkCaptcha = function checkCaptcha (regData) {
   return new Promise(function (resolve, reject) {
     // real captcha checking code will go here
     // for now, just always resolve.
+    resolve(regData)
+    /*
     recaptcha.validate(regData['g-recaptcha-response']).then(function () {
     // validated and secure
       resolve(regData)
@@ -60,6 +69,7 @@ exports.checkCaptcha = function checkCaptcha (regData) {
       // invalid
       reject('Invalid captcha')
     })
+    */
   })
 }
 
@@ -151,20 +161,40 @@ exports.registerUser = function registerUser (regData) {
   })
 }
 
+exports.sendVerifiationMail = function sendMail (regData) {
+  return new Promise(function(resolve, reject){
+    console.log('sendMail')
+    var data = {
+      from: '3dsthemes <verify@mail.3dsthemes.org>',
+      to: regData.email,
+      subject: 'Verify your email address!',
+      html: emailTemplates.verify({
+        regData: regData
+      })
+    }
+    mailgun.messages().send(data, function (error, body) {
+      if (error){
+        reject(error)
+      } else {
+        resolve(regData)
+      }
+    });
+  })
+}
+
 exports.activate = function activate (data) {
   return new Promise(function (resolve, reject) {
     console.log('activate')
 
-    db.query('SELECT username FROM users WHERE username=? AND verificationCode=?', [data.username, data.code]).then(function (result) {
-      if (result.length > 0) {
-        db.query('UPDATE users SET flags = flags | 0b1 WHERE username=? AND verificationCode=?', [data.username, data.code], function (err, result, fields) {
-          if (err) {
-            console.warn('Database error!', err)
-            reject('An unknown error occurred')
-          } else {
-            console.log(result)
-            resolve(true)
-          }
+    db.query('SELECT username FROM users WHERE username=? AND verificationCode=?', [data.username, data.code]).then(function (result1) {
+      if (result1.length > 0) {
+        // accountFunctions.getUserFlags(data['flags'])
+        db.query('UPDATE users SET flags = flags | 0b1 WHERE username=? AND verificationCode=?', [data.username, data.code]).then(function (result2) {
+          console.log(result1)
+          resolve(result1[0])
+        }).catch(function (err) {
+          console.warn('Database error!', err)
+          reject('An unknown error occurred')
         })
       } else {
         reject(false)
@@ -230,6 +260,20 @@ exports.getUserFlags = function (bits) {
   }
 
   return output
+}
+
+exports.checkVerified = function(data){
+  return new Promise(function (resolve, reject) {
+    console.log('checkVerified')
+    db.query('SELECT * FROM users WHERE username=?', [data.username])
+    .then(function (result) {
+      resolve(data)
+    })
+    .catch(function (err) {
+      console.log('Database error!', err)
+      reject('An unknown error occurred')
+    })
+  })
 }
 
 exports.getUser = function getUser (user) {

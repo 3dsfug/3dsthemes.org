@@ -77,6 +77,11 @@ html
                   ['/account/login/', 'Login']
                 ])
     .container
+      if(req.session && req.session.permissions && req.session.permissions.active === 0)
+        .alert.alert-warning
+          p Your account has not yet been activated, you won't be able to upload or comment until you do.
+          p Lost your activation email? 
+            a(href='/account/resend-activation/') Click here to re-send it.
       if(error)
         .alert.alert-danger=error
       block container

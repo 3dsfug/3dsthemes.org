@@ -11,6 +11,12 @@ html, body {
 
 .alert {
   white-space: pre;
+  a {
+    font-weight: bold;
+    &, &:hover, &:active, &:focus {
+    color: #FFF;
+    }
+  }
 }
 
 body {
@@ -20,6 +26,18 @@ body {
       background-size: cover;
       background-attachment: fixed;
       background-position: bottom left;
+  }
+}
+
+.gravatarHeading {
+  img {
+    border-radius: 10%;
+    height: 80px;
+  }
+  h2 {
+      display: inline;
+      vertical-align: middle;
+      padding-left: .3em;
   }
 }
 
