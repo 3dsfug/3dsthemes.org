@@ -422,7 +422,7 @@ app.post('/upload/', function (req, res) {
       return
     }
     if (errors.length > 0) {
-      res.render('upload', { error: errors.join('\n\n') })
+      res.render('upload', { error: errors })
       return
     }
   })

@@ -83,7 +83,13 @@ html
           p Lost your activation email? 
             a(href='/account/resend-activation/') Click here to re-send it.
       if(error)
-        .alert.alert-danger=error
+        .alert.alert-danger
+          ul
+            if(error instanceof Array)
+              for err in error
+                li=err
+            else
+              li=error
       block container
         .well
           block well
