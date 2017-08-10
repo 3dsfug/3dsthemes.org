@@ -54,7 +54,7 @@ module.exports = {
         language_in: 'ECMASCRIPT6',
         language_out: 'ECMASCRIPT3',
         compilation_level: 'SIMPLE',
-        create_source_map: true
+        create_source_map: '[name]-' + (new Date())
       },
       concurrency: 3
     })

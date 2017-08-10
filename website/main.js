@@ -43,6 +43,9 @@ const jdenticon = require('jdenticon')
 // CONFIG
 const conf = require(path.join(__dirname, 'config.json'))
 
+// Cache busters
+var mtimeInfo = {}
+
 // Data directories
 fs.existsSync(conf.paths.themes) || fs.mkdirSync(conf.paths.themes)
 fs.existsSync(conf.paths.splashes) || fs.mkdirSync(conf.paths.splashes)
@@ -141,6 +144,11 @@ function send500 (req, res) {
   res.status(500).render('errors/500')
 }
 
+function permaCache (res, path) {
+  res.setHeader('Cache-Control', 'public, max-age=631152000')
+  res.setHeader('Expires', new Date(Date.now() + 631152000000).toUTCString())
+}
+
 // Update last seen if logged in and set some template locals
 app.all('*', function (req, res, next) {
   if (req.session && req.session.loggedIn === true) {
@@ -150,8 +158,18 @@ app.all('*', function (req, res, next) {
   res.locals.req = req
   res.locals.session = req.session
   res.locals.md5 = function (data) {
-    return crypto.createHash('md5').update(data).digest("hex").toLowerCase()
+    return crypto.createHash('md5').update(data).digest('hex').toLowerCase()
   }
+  res.locals.mtime = function (file) {
+    var fullPath = path.join(__dirname, file)
+    if (mtimeInfo[fullPath]) return mtimeInfo[fullPath]
+
+    if (fs.existsSync(fullPath)) {
+      return (mtimeInfo[fullPath] = Math.round(new Date(fs.statSync(fullPath).mtime).getTime() / 1000))
+    }
+  }
+
+  res.setHeader('Cache-Control', 'no-store')
 
   next()
 })
@@ -573,8 +591,7 @@ app.get('/json/qrcode.json', function (req, res) {
     return
   }
   var qrcode = new QrCode(req.query.data, [req.query.level || 'H'])
-  res.setHeader('Cache-Control', 'public, max-age=631152000')
-  res.setHeader('Expires', new Date(Date.now() + 631152000000).toUTCString())
+  permaCache(res)
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.json(qrcode.getData())
 })
@@ -585,8 +602,7 @@ app.get('/txt/qrcode.txt', function (req, res) {
     return
   }
   var qrcode = new QrCode(req.query.data, [req.query.level || 'H'])
-  res.setHeader('Cache-Control', 'public, max-age=631152000')
-  res.setHeader('Expires', new Date(Date.now() + 631152000000).toUTCString())
+  permaCache(res)
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Content-Type', 'text/plain')
 
@@ -605,8 +621,12 @@ app.use('/data/themes/', express.static(path.join(conf.paths.themes)))
 app.use('/data/splashes/', express.static(path.join(conf.paths.splashes)))
 app.use('/data/badges/', express.static(path.join(conf.paths.badges)))
 app.use('/data/previews/', express.static(path.join(conf.paths.previews)))
-app.use(express.static(path.join(__dirname, 'build')))
-app.use(express.static(path.join(__dirname, 'web')))
+app.use(express.static(path.join(__dirname, 'build'), {
+  setHeaders: permaCache
+}))
+app.use(express.static(path.join(__dirname, 'web'), {
+  setHeaders: permaCache
+}))
 
 app.use('/js/tai-password-strength', express.static(path.join(__dirname, 'node_modules', 'tai-password-strength')))
 app.use('/js/javascript-qrcode', express.static(path.join(__dirname, 'node_modules', 'javascript-qrcode')))
