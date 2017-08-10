@@ -36,12 +36,9 @@ const helmet = require('helmet')
 const session = require('express-session')
 const MySQLStore = require('express-mysql-session')(session)
 const QrCode = require('javascript-qrcode').QrCode
-const minify = require('express-minify')
 const tmp = require('tmp')
-const minifyCache = tmp.dirSync().name
 const archiver = require('archiver')
 const jdenticon = require('jdenticon')
-console.log(`Minify Cache: ${minifyCache}`)
 
 // CONFIG
 const conf = require(path.join(__dirname, 'config.json'))
@@ -125,11 +122,6 @@ app.use(helmet.frameguard()) // Anti-iframe
 app.use(helmet.ieNoOpen()) // tbh i dont know what this is, but more security is better
 app.use(helmet.noSniff()) // Anti mime sniff (thinking of disabling this)
 app.use(helmet.xssFilter()) // XSS Protection (eh)
-
-// minify and scss handling
-app.use(minify({
-  cache: minifyCache
-}))
 
 // Functions
 
@@ -613,6 +605,7 @@ app.use('/data/themes/', express.static(path.join(conf.paths.themes)))
 app.use('/data/splashes/', express.static(path.join(conf.paths.splashes)))
 app.use('/data/badges/', express.static(path.join(conf.paths.badges)))
 app.use('/data/previews/', express.static(path.join(conf.paths.previews)))
+app.use(express.static(path.join(__dirname, 'build')))
 app.use(express.static(path.join(__dirname, 'web')))
 
 app.use('/js/tai-password-strength', express.static(path.join(__dirname, 'node_modules', 'tai-password-strength')))

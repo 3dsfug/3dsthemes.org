@@ -1,14 +1,11 @@
-const webpack = require('webpack');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const ClosureCompilerPlugin = require('webpack-closure-compiler')
 const path = require('path')
-const cssPath = path.resolve(__dirname, './build/css/')
-const jsPath = path.resolve(__dirname, './build/js')
 module.exports = {
   entry: [
     './js/main.js', './web/css/custom.scss'
   ],
-  devtool: "source-map",
+  devtool: 'source-map',
   module: {
     rules: [
       {
@@ -16,31 +13,59 @@ module.exports = {
         loader: ExtractTextPlugin.extract({
           use: [
             {
-              loader: "css-loader?-url",
-							options: {
-								sourceMap: true
-							}
-            }, {
-              loader: "sass-loader?-url",
+              loader: 'css-loader',
+              options: {}
+            },
+            {
+              loader: 'sass-loader',
               options: {
-								sourceMap: true,
-                outputStyle: "compact"
+                sourceMap: false
+              }
+            },
+            {
+              loader: 'postcss-loader',
+              options: {
+                'autoprefixer': {
+                  browsers: ['last 2 versions', '> 5%'],
+                  sourceMap: true
+                }
               }
             }
           ]
         })
       }, {
-        test: /\.pug/,
+        test: /\.(?:pug|jade)$/,
         loader: 'pug-loader'
+      },
+      {
+        test: /\.(gif|jpeg|png|woff|woff2|eot|ttf|svg)$/,
+        loader: 'file-loader',
+        options: {
+          outputPath: 'assets/',
+          publicPath: '/'
+        }
       }
     ]
   },
   plugins: [
-    new ExtractTextPlugin({filename: '/css/[name].bundle.css'}),
-    new UglifyJSPlugin()
+    new ExtractTextPlugin({filename: '../build/css/[name].bundle.css'}),
+    new ClosureCompilerPlugin({
+      compiler: {
+        language_in: 'ECMASCRIPT6',
+        language_out: 'ECMASCRIPT3',
+        compilation_level: 'SIMPLE',
+        create_source_map: true
+      },
+      concurrency: 3
+    })
   ],
+  resolve: {
+    'alias': {
+      'views': path.resolve(__dirname, 'views/')
+    }
+  },
   output: {
-    path: __dirname + "/build/",
-    filename: "./js/bundle.js"
+    path: path.join(__dirname, 'build'),
+    filename: './js/bundle.js'
   }
-};
+}
